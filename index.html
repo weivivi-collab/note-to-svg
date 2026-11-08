@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="note-to-svg 將手寫筆記轉換為經確認、系統化、流程導向的可編輯 SVG。">
+  <meta name="theme-color" content="#07111f">
+  <title>note-to-svg — 把手寫思考轉化為清晰系統</title>
+  <style>
+    :root{
+      --bg:#06101d;--panel:rgba(13,30,50,.8);--panel2:#0e2137;
+      --line:rgba(140,190,222,.18);--text:#f2f8fb;--muted:#9db3c6;
+      --cyan:#42e8ff;--blue:#5b8cff;--orange:#ff9a48;--green:#46e6ac;--pink:#ff64bd;
+      --shadow:0 28px 80px rgba(0,0,0,.38)
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{
+      margin:0;min-width:320px;color:var(--text);line-height:1.7;
+      font-family:Inter,"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+      background:
+        radial-gradient(circle at 80% 8%,rgba(80,67,255,.18),transparent 28rem),
+        radial-gradient(circle at 8% 72%,rgba(0,208,168,.1),transparent 28rem),var(--bg);
+      overflow-x:hidden
+    }
+    body:before{
+      content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+      background-image:linear-gradient(rgba(118,177,211,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(118,177,211,.055) 1px,transparent 1px);
+      background-size:48px 48px;mask-image:linear-gradient(to bottom,#000,transparent 88%)
+    }
+    a{color:inherit}.wrap{width:min(1160px,calc(100% - 40px));margin:auto}
+    .nav{position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line);background:rgba(6,16,29,.72);backdrop-filter:blur(18px)}
+    .navin{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:850}
+    .mark{width:36px;aspect-ratio:1;border-radius:11px;display:grid;place-items:center;color:#03111a;background:linear-gradient(135deg,var(--cyan),var(--green));box-shadow:0 0 28px rgba(66,232,255,.3)}
+    .links{display:flex;align-items:center;gap:26px;color:var(--muted);font-size:.92rem}.links a{text-decoration:none}.links a:hover{color:var(--text)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 20px;border:1px solid rgba(88,219,245,.28);border-radius:14px;background:rgba(21,48,72,.66);text-decoration:none;transition:.2s}
+    .btn:hover{transform:translateY(-2px);border-color:rgba(88,219,245,.68)}.btn.primary{border:0;color:#03131c;font-weight:850;background:linear-gradient(135deg,var(--cyan),#79f4cc)}
+    .hero{min-height:820px;display:grid;align-items:center;padding:100px 0 80px}
+    .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:72px;align-items:center}
+    .eyebrow{margin:0 0 18px;color:var(--cyan);font-size:.78rem;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
+    h1{margin:0;max-width:720px;font-size:clamp(3.2rem,6vw,6.2rem);line-height:.98;letter-spacing:-.055em}
+    h1 span{display:block;color:transparent;background:linear-gradient(90deg,var(--cyan),#9c8dff 55%,var(--pink));background-clip:text}
+    .lead{max-width:640px;margin:28px 0 34px;color:#b7c8d8;font-size:clamp(1.08rem,2vw,1.3rem)}
+    .actions{display:flex;flex-wrap:wrap;gap:14px}.proof{display:flex;flex-wrap:wrap;gap:24px;margin-top:38px;color:var(--muted);font-size:.88rem}
+    .proof span{display:flex;align-items:center;gap:8px}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
+    .system{position:relative;padding:24px;border:1px solid rgba(114,179,216,.22);border-radius:34px;background:linear-gradient(160deg,rgba(18,42,67,.92),rgba(8,19,34,.9));box-shadow:var(--shadow);overflow:hidden}
+    .system:after{content:"";position:absolute;inset:auto -20% -45% 15%;height:320px;background:radial-gradient(circle,rgba(82,114,255,.22),transparent 65%)}
+    .bar{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem}.lights{display:flex;gap:7px}.lights i{width:9px;height:9px;border-radius:50%;background:var(--pink)}.lights i:nth-child(2){background:var(--orange)}.lights i:nth-child(3){background:var(--green)}
+    .flow{position:relative;z-index:1;display:grid;gap:12px;margin-top:28px}
+    .flow-item{position:relative;display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:14px;min-height:74px;padding:14px 16px;border:1px solid rgba(121,175,209,.16);border-radius:18px;background:rgba(10,25,42,.78)}
+    .flow-item:not(:last-child):after{content:"";position:absolute;left:36px;bottom:-13px;width:1px;height:13px;background:linear-gradient(var(--cyan),transparent)}
+    .step{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;color:#06101d;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--blue))}
+    .flow-item:nth-child(2) .step{background:linear-gradient(135deg,var(--orange),#ffcc6d)}.flow-item:nth-child(3) .step{background:linear-gradient(135deg,var(--green),var(--cyan))}.flow-item:nth-child(4) .step{background:linear-gradient(135deg,var(--pink),#8b73ff)}
+    .flow-item strong{display:block}.flow-item small{color:var(--muted)}.status{padding:5px 9px;border-radius:99px;color:var(--green);background:rgba(70,230,172,.09);font-size:.7rem;font-weight:850;letter-spacing:.08em}
+    section{padding:100px 0}.head{display:grid;grid-template-columns:.85fr 1.15fr;gap:72px;align-items:end;margin-bottom:48px}
+    .head h2{margin:0;font-size:clamp(2.2rem,4.4vw,4.2rem);line-height:1.05;letter-spacing:-.045em}.head p{margin:0;color:var(--muted);font-size:1.08rem}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{min-height:280px;padding:28px;border:1px solid var(--line);border-radius:28px;background:var(--panel)}
+    .num{color:var(--cyan);font-size:.74rem;font-weight:900;letter-spacing:.16em}.card h3{margin:38px 0 12px;font-size:1.5rem}.card p{margin:0;color:var(--muted)}
+    .pipeline{padding:38px;border:1px solid var(--line);border-radius:34px;background:rgba(9,24,40,.76);box-shadow:var(--shadow)}
+    .pipe-row{display:grid;grid-template-columns:1fr 72px 1fr 72px 1fr;align-items:center}.stage{min-height:230px;padding:26px;border-radius:24px;background:var(--panel2)}
+    .stage:nth-of-type(1){border-top:3px solid var(--orange)}.stage:nth-of-type(3){border-top:3px solid var(--green)}.stage:nth-of-type(5){border-top:3px solid var(--pink)}
+    .stage small{color:var(--muted);font-weight:850;letter-spacing:.1em}.stage h3{margin:52px 0 10px;font-size:1.45rem}.stage p{margin:0;color:var(--muted);font-size:.92rem}.arrow{color:var(--cyan);text-align:center;font-size:2rem;opacity:.7}
+    .terminal{overflow:hidden;border:1px solid rgba(100,201,228,.25);border-radius:28px;background:#07131f;box-shadow:var(--shadow)}
+    .term-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);color:var(--muted);font-size:.8rem}
+    .terminal pre{min-height:170px;margin:0;padding:30px;overflow:auto;color:#ccf9eb;font:500 1rem/1.8 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap}
+    .copy{border:1px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--muted);background:rgba(255,255,255,.03);cursor:pointer}.copy:hover{color:var(--text)}
+    .cta{padding:72px;border:1px solid var(--line);border-radius:38px;text-align:center;background:linear-gradient(135deg,rgba(34,62,94,.85),rgba(34,23,75,.7));box-shadow:var(--shadow)}
+    .cta h2{margin:0 0 16px;font-size:clamp(2.3rem,5vw,4.6rem);line-height:1.05;letter-spacing:-.05em}.cta p{max-width:620px;margin:0 auto 30px;color:var(--muted)}
+    footer{padding:36px 0 52px;color:var(--muted);font-size:.85rem}.foot{display:flex;justify-content:space-between;gap:24px;padding-top:28px;border-top:1px solid var(--line)}
+    .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}.reveal.visible{opacity:1;transform:none}
+    @media(max-width:900px){.links a:not(.btn){display:none}.hero{min-height:auto}.hero-grid,.head{grid-template-columns:1fr;gap:44px}.cards{grid-template-columns:1fr}.pipe-row{grid-template-columns:1fr;gap:14px}.arrow{transform:rotate(90deg)}.card{min-height:auto}}
+    @media(max-width:600px){.wrap{width:min(100% - 28px,1160px)}.navin{min-height:62px}.hero{padding-top:72px}h1{font-size:clamp(3rem,16vw,4.6rem)}section{padding:74px 0}.system,.pipeline{padding:18px;border-radius:24px}.flow-item{grid-template-columns:38px 1fr}.status{display:none}.cta{padding:48px 22px}.foot{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}.reveal{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="主要導覽">
+    <div class="wrap navin">
+      <a class="brand" href="#top"><span class="mark">✓</span><span>note-to-svg</span></a>
+      <div class="links"><a href="#capabilities">能力</a><a href="#workflow">流程</a><a href="#install">安裝</a><a class="btn" href="https://github.com/weivivi-collab/note-to-svg" target="_blank" rel="noreferrer">GitHub ↗</a></div>
+    </div>
+  </nav>
+  <main id="top">
+    <header class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">A Codex Skill for Visual Thinking</p>
+          <h1>把手寫思考<span>轉化為清晰系統</span></h1>
+          <p class="lead">note-to-svg 讀懂文字、顏色、箭頭與空間關係；先確認不確定之處，再將零散筆記整理成可編輯、可交付的專業 SVG。</p>
+          <div class="actions"><a class="btn primary" href="#install">立即使用 ↓</a><a class="btn" href="https://github.com/weivivi-collab/note-to-svg/blob/main/SKILL.md" target="_blank" rel="noreferrer">查看 Skill</a></div>
+          <div class="proof"><span><i class="dot"></i>語意先確認</span><span><i class="dot"></i>純向量輸出</span><span><i class="dot"></i>流程導向</span></div>
+        </div>
+        <div class="system reveal" aria-label="note-to-svg 工作流程示意">
+          <div class="bar"><div class="lights"><i></i><i></i><i></i></div><span>semantic-pipeline.svg</span></div>
+          <div class="flow">
+            <div class="flow-item"><span class="step">01</span><div><strong>讀取筆記</strong><small>文字・顏色・箭頭・分組</small></div><span class="status">OBSERVE</span></div>
+            <div class="flow-item"><span class="step">02</span><div><strong>確認語意</strong><small>確定・推測・不清楚</small></div><span class="status">CONFIRM</span></div>
+            <div class="flow-item"><span class="step">03</span><div><strong>建立模型</strong><small>實體・流程・角色・回饋</small></div><span class="status">MODEL</span></div>
+            <div class="flow-item"><span class="step">04</span><div><strong>生成 SVG</strong><small>結構清晰・向量可編輯</small></div><span class="status">RENDER</span></div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <section id="capabilities">
+      <div class="wrap">
+        <div class="head reveal"><div><p class="eyebrow">Why note-to-svg</p><h2>不是單純描字，<br>而是重建你的思考。</h2></div><p>普通 OCR 只能抽取文字；note-to-svg 同時保留顏色語意、空間群組、箭頭方向與跨頁關係，再把它們整理成能被討論、修訂與執行的系統模型。</p></div>
+        <div class="cards">
+          <article class="card reveal"><span class="num">01 / EVIDENCE</span><h3>忠於原始筆記</h3><p>將內容分為已確認、合理推測與不清楚，避免把模糊字跡或個人推論偽裝成事實。</p></article>
+          <article class="card reveal"><span class="num">02 / STRUCTURE</span><h3>建立語意架構</h3><p>辨識實體、流程、輸入輸出、角色、驗證關卡、指標與回饋迴圈，找出跨主題連結。</p></article>
+          <article class="card reveal"><span class="num">03 / DELIVERY</span><h3>輸出專業向量圖</h3><p>採用一致的色彩、層級、連線與排版，生成可縮放、可編輯、可繼續迭代的 SVG。</p></article>
+        </div>
+      </div>
+    </section>
+    <section id="workflow">
+      <div class="wrap">
+        <div class="head reveal"><div><p class="eyebrow">A confirmed workflow</p><h2>從證據到系統圖，<br>每一步都有依據。</h2></div><p>只詢問會改變架構的關鍵歧義；低風險細節採用透明假設繼續推進，兼顧準確性與製作效率。</p></div>
+        <div class="pipeline reveal"><div class="pipe-row">
+          <article class="stage"><small>INPUT</small><h3>手寫筆記</h3><p>照片、白板、草圖、逐字稿與不同顏色的螢光標記。</p></article><div class="arrow">→</div>
+          <article class="stage"><small>PROCESS</small><h3>語意確認</h3><p>釐清顏色含義、箭頭方向、案例層級與不確定文字。</p></article><div class="arrow">→</div>
+          <article class="stage"><small>OUTPUT</small><h3>SVG 系統圖</h3><p>一條主要閱讀動線，加上平行案例、支援層與必要回饋迴圈。</p></article>
+        </div></div>
+      </div>
+    </section>
+    <section id="install">
+      <div class="wrap">
+        <div class="head reveal"><div><p class="eyebrow">Install & invoke</p><h2>裝好一次，<br>之後直接呼叫。</h2></div><p>將儲存庫複製到個人 Codex Skills 目錄，即可在新任務中用名稱明確啟動，或讓 Codex 依需求自動辨識。</p></div>
+        <div class="terminal reveal">
+          <div class="term-head"><span>Codex prompt</span><button class="copy" data-copy="使用 $note-to-svg，把這些不同顏色標記的手寫筆記整理成直式、流程導向、高級科技風格的 SVG；遇到會影響架構的不確定內容時先向我確認。">複製</button></div>
+          <pre><code>使用 $note-to-svg，把這些不同顏色標記的手寫筆記
+整理成直式、流程導向、高級科技風格的 SVG；
+遇到會影響架構的不確定內容時先向我確認。</code></pre>
+        </div>
+      </div>
+    </section>
+    <section><div class="wrap"><div class="cta reveal"><p class="eyebrow">Turn notes into systems</p><h2>讓筆記不只被看見，<br>更能被理解與執行。</h2><p>從第一張手寫照片開始，逐步建立一套可討論、可驗證、可交付的視覺系統。</p><a class="btn primary" href="https://github.com/weivivi-collab/note-to-svg" target="_blank" rel="noreferrer">前往 GitHub ↗</a></div></div></section>
+  </main>
+  <footer><div class="wrap foot"><span>© 2026 note-to-svg</span><span>Designed for clear, confirmed visual thinking.</span></div></footer>
+  <script>
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>entry.isIntersecting&&entry.target.classList.add("visible")),{threshold:.12});
+    document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+    document.querySelectorAll("[data-copy]").forEach(button=>button.addEventListener("click",async()=>{await navigator.clipboard.writeText(button.dataset.copy);const original=button.textContent;button.textContent="已複製";setTimeout(()=>button.textContent=original,1500)}));
+  </script>
+</body>
+</html>
