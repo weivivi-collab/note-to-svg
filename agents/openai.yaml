@@ -1,0 +1,7 @@
+interface:
+  display_name: "Note to SVG"
+  short_description: "Turn handwritten notes into structured SVG system maps"
+  brand_color: "#22D3EE"
+  default_prompt: "Use $note-to-svg to turn these handwritten notes into a structured, process-oriented SVG."
+policy:
+  allow_implicit_invocation: true
